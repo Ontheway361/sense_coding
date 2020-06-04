@@ -1,23 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on 2020/05/29
+Created on 2020/05/31
 author: relu
 """
 
+import numpy as np
+from IPython import embed
 
-def partition_with_median(arr, sidx = 0, eidx = 0, median = 0):
+
+def partition(arr, sidx = 0, eidx = 0, median = 0):
     ''' T(n) = O(n) '''
 
+    medix = 0
+    for i in range(sidx, eidx + 1):
+
+        if arr[i] == median:
+            medix = i
+            break
+    arr[medix] = arr[eidx]
+    arr[eidx]  = median
     slow_idx = sidx - 1
-    for fast_idx in range(sidx, eidx + 1):
+    for fast_idx in range(sidx, eidx):
 
         if arr[fast_idx] <= median:
             slow_idx += 1
             tmp = arr[slow_idx]
             arr[slow_idx] = arr[fast_idx]
             arr[fast_idx] = tmp
-    return slow_idx
+    arr[eidx] = arr[slow_idx + 1]
+    arr[slow_idx + 1] = median
+    return slow_idx + 1
 
 
 def insertsort(arr, sidx = 0, eidx = 0):
@@ -26,28 +39,51 @@ def insertsort(arr, sidx = 0, eidx = 0):
 
         key = arr[i]
         idx = i - 1
-        while idx >= 0 and arr[idx] > key:
+        while idx >= sidx and arr[idx] > key:
             arr[idx + 1] = arr[idx]
             idx -= 1
         arr[idx + 1] = key
     midx = (sidx + eidx) // 2
-    return arr[mid]
 
 
-def select_ith_element(arr, ith):
-    ''' T(n) = O(n) '''
+def select(arr, left, right, k):
 
-    if len(arr) <= 5:
-        return insertsort(arr, 0, len(arr) - 1)
+    if right - left <= 4:
+        insertsort(arr, left, right)
+        return arr[left + k - 1]
 
-    median_arr = []
-    n_splits = len(arr) // 5
-    n_residu = len(arr) % 5
-    for i in range(n_splits):
-        p_start = i * 5
-        p_end   = p_start + 4
-        median_arr.append(insertsort(arr, p_start, p_end))
-    if n_residu > 0:
-        median_arr.append(insertsort(arr, p_end + 1, p_end + n_residu))
+    groups = (right - left + 5) // 5
+    for i in range(groups):
 
-    midx = select_ith_element(median_arr, )
+        low  = left + 5 * i
+        high = 0
+        if (low + 4) > right:
+            high = right
+        else:
+            high = low + 4
+        insertsort(arr, low, high)
+        median = (low + high) // 2
+        tmp = arr[left + i]
+        arr[left + i] = arr[median]
+        arr[median] = tmp
+
+    pivot = select(arr, left, left + groups - 1, (1 + groups) // 2)  # Core
+    mark  = partition(arr, left, right, pivot)
+    pivotNumber = mark - left + 1
+    if pivotNumber == k:
+        return arr[mark]
+    elif pivotNumber > k:
+        return select(arr, left, mark - 1, k)
+    else:
+        return select(arr, mark + 1, right, k - pivotNumber)
+
+
+if __name__  == "__main__":
+
+    max_bound, v_len = 100, 20
+    pick_ith = 5
+    v_list = np.random.permutation(range(max_bound)).tolist()[:v_len]
+    # v_list = [89, 8, 39, 58, 11, 75, 0, 33, 47, 57]
+    print('before sorted : ', v_list)
+    print('after sorted  :', sorted(v_list))
+    print(select(v_list, 0, v_len - 1, pick_ith))
