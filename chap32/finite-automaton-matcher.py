@@ -63,8 +63,8 @@ if __name__ == "__main__":
 
     # sstr = 'Yahoo machine learning, deep learning'
     # tstr = 'deep'
-    sstr = 'abcdefghijk'
-    tstr = 'hij'
+    sstr = 'bacbababaabcbab'
+    tstr = 'ababaca'
     match_flag, idx  = finite_auto_matcher(sstr, tstr)
     if not match_flag:
         print('matching failed ...')
