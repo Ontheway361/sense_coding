@@ -1,26 +1,26 @@
-
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 """
-Created on 2020/06/19
+Created on 2020/07/01
 author: relu
 """
 
 from IPython import embed
 
-def compute_prefix_func(pstr = ''):
-
-    func = [0] * len(pstr)
+def calculate_prefixtable_speedup(pstr = ''):
+    '''
+    k : 当前匹配操作前，已经匹配的最大前缀串的长度
+    '''
+    prefix = [0] * len(pstr)
+    k = 0
     for q in range(1, len(pstr)):
-        if func[q-1] > 0 and pstr[q] == pstr[func[q-1]]:
-            func[q] = func[q-1] + 1
-        else:
-            k = 0
-            while k < q and pstr[:k+1] == pstr[:q+1][-(k+1):]:
-                k += 1
-            func[q] = k
-    return func
 
+        while k > 0 and pstr[k] != pstr[q]:
+            k = prefix[k-1]
+        if pstr[k] == pstr[q]:
+            k += 1
+        prefix[q] = k
+    return prefix
 
 def kmp(sstr = '', pstr = ''):
     pi = compute_prefix_func(pstr)
@@ -42,18 +42,13 @@ def kmp(sstr = '', pstr = ''):
 
 if __name__ == "__main__":
 
-    sstr = 'Yahoo machine learning,@deep learning deep'
-    tstr = 'deep'
-    sstr = 'ababaababababa'
-    tstr = 'abababa'
-    sstr = 'aaababababca'
-    tstr = 'ababca'
-
-    func  = compute_prefix_func(tstr)
-    print(func)
-    occidx = kmp(sstr, tstr)
-    if len(occidx) < 1:
-        print('NO MATCHING')
-    else:
-        for idx in occidx:
-            print('pstr occurs at %d' % idx)
+    pstr = 'abaabab'
+    # pstr = 'abcabcabcb'
+    speedup = calculate_prefixtable_speedup(pstr)
+    print('speedup : ', speedup)
+    # occidx = kmp(sstr, tstr)
+    # if len(occidx) < 1:
+    #     print('NO MATCHING')
+    # else:
+    #     for idx in occidx:
+    #         print('pstr occurs at %d' % idx)
